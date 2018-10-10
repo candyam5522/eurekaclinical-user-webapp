@@ -3,7 +3,7 @@
     <groupId>org.eurekaclinical</groupId>    
     <artifactId>eurekaclinical-user-webapp</artifactId>
     <packaging>war</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>2.1-SNAPSHOT</version>
     <name>Eureka! Clinical User Webapp</name>
     <description>Eureka! Clinical User Webapp is the implementation of Eureka! Clinical User 
         web interface that is used by Eureka! Clinical multiple projects
@@ -13,23 +13,19 @@
     <parent>
         <groupId>org.eurekaclinical</groupId>
         <artifactId>eurekaclinical-parent-standard-deps</artifactId>
-        <version>2</version>
+        <version>3</version>
     </parent>        
         
     <properties>
-        <tomcat.port>8080</tomcat.port>
-        <tomcat.httpsPort>8443</tomcat.httpsPort>        
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <ec.build.timestamp>${maven.build.timestamp}</ec.build.timestamp>
-        <jstl-version>1.2</jstl-version>
-        <jsp-api-version>2.0</jsp-api-version>
-        <ec-user-client-version>1.0</ec-user-client-version>
-        <ec-user-service-version>1.0.1</ec-user-service-version>
-        <ec-common-version>2.0</ec-common-version>
-        <ec-standard-apis-version>2.0</ec-standard-apis-version>
-        <ec-registry-client-version>1.1-Beta-2</ec-registry-client-version>
-        <ec-registry-service-version>1.2-Beta-2</ec-registry-service-version>
-        <scribe-up-ext-version>2.0</scribe-up-ext-version>
+        <ec-user-client-version>1.1</ec-user-client-version>
+        <ec-user-service-version>2.0</ec-user-service-version>
+        <ec-common-version>3.0</ec-common-version>
+        <ec-standard-apis-version>2.1</ec-standard-apis-version>
+        <ec-registry-client-version>1.3</ec-registry-client-version>
+        <ec-registry-service-version>1.3</ec-registry-service-version>
+        <cas-mock-version>2.1</cas-mock-version>
     </properties>
 
     <scm>
@@ -56,39 +52,12 @@
                         <param>etc/license-mappings.xml</param>
                     </licenseMapping>
                 </configuration>
-            </plugin>                  
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>yuicompressor-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compress</goal>
-                        </goals>
-                    </execution>
-                </executions>                              
-                <configuration>
-                    <suffix>${maven.build.timestamp}</suffix>
-                    <includes>
-                        <include>assets/js/eureka.*.js</include>
-                    </includes>
-                </configuration>
-            </plugin>      
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>                                     
+            </plugin>                                                  
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
-                    <packagingIncludes>
-                        <!--%regex[assets/js/eureka.*${maven.build.timestamp}.js],-->
-                        %regex[assets/js/eureka.*.js],
-                        %regex[^(?!assets/js/eureka).*$],
-                        assets/css/eureka.css
-                    </packagingIncludes>                                    
+                    <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>                          
                 </configuration>
             </plugin>
             <plugin>
@@ -110,11 +79,6 @@
     <profiles>
         <profile>
             <id>tomcat</id>
-            <properties>
-                <cas-server-version>3.0-Alpha-26</cas-server-version>
-                <cas-mock-version>2.0</cas-mock-version>
-                <tomcat.httpsPort>8443</tomcat.httpsPort>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -122,82 +86,8 @@
                         <artifactId>maven-resources-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-context.xml</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/tomcat-config</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/main/resources/tomcat-server-config</directory>
-                                            <filtering>true</filtering>
-                                            <includes>
-                                                <include>context.xml</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-cert</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/tomcat-config</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/main/resources/tomcat-server-config</directory>
-                                            <filtering>false</filtering>
-                                            <includes>
-                                                <include>localhost.keystore</include>
-                                                <include>localhost.truststore</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-logging.properties-file</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/eureka-config</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/main/resources/tomcat-eureka-config</directory>
-                                            <includes>
-                                                <include>logging.properties</include>
-                                            </includes>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-application.properties-file</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/eureka-config/eureka</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/main/resources/tomcat-eureka-config/eureka</directory>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
                                 <id>copy-sql-from-eurekaclinical-registry-service-2</id>
-                                <phase>generate-resources</phase>
+                                <phase>process-resources</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
@@ -219,64 +109,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>                            
-                    <plugin>
-                        <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat7-maven-plugin</artifactId>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.jasig.cas.client</groupId>
-                                <artifactId>cas-client-core</artifactId>
-                                <version>${cas-client-version}</version>                                
-                                <exclusions>
-                                    <exclusion>
-                                        <groupId>javax.servlet</groupId>
-                                        <artifactId>servlet-api</artifactId>
-                                    </exclusion>
-                                </exclusions>                                
-                            </dependency>
-                        </dependencies>
-                        <configuration>
-                            <warSourceDirectory>${project.build.directory}/${project.build.finalName}</warSourceDirectory>
-                            <port>${tomcat.port}</port>
-                            <httpsPort>${tomcat.httpsPort}</httpsPort>
-                            <keystorePass>changeit</keystorePass>
-                            <keystoreFile>conf/localhost.keystore</keystoreFile>
-                            <keystoreType>JKS</keystoreType>
-                            <additionalConfigFilesDir>${project.build.directory}/tomcat-config</additionalConfigFilesDir>
-                            <systemProperties>
-                                <org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH>true</org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH>
-                                <javax.net.ssl.trustStore>${project.build.directory}/tomcat/conf/localhost.truststore</javax.net.ssl.trustStore>
-                                <javax.net.ssl.trustStorePassword>changeit</javax.net.ssl.trustStorePassword>
-                                <eureka.config.dir>${project.build.directory}/eureka-config/eureka</eureka.config.dir>
-                                <java.util.logging.config.file>${project.build.directory}/eureka-config/logging.properties</java.util.logging.config.file>
-                            </systemProperties>
-                            <webapps>
-                                <webapp>
-                                    <groupId>org.eurekaclinical</groupId>
-                                    <artifactId>cas-mock</artifactId>
-                                    <version>${cas-mock-version}</version>
-                                    <type>war</type>
-                                    <asWebapp>true</asWebapp>
-                                </webapp>
-                                <webapp>
-                                    <groupId>org.eurekaclinical</groupId>
-                                    <artifactId>eurekaclinical-user-service</artifactId>
-                                    <version>${ec-user-service-version}</version>
-                                    <type>war</type>
-                                    <asWebapp>true</asWebapp>
-                                </webapp>
-                                <webapp>
-                                    <groupId>org.eurekaclinical</groupId>
-                                    <artifactId>eurekaclinical-registry-service</artifactId>
-                                    <version>${ec-registry-service-version}</version>
-                                    <type>war</type>
-                                    <asWebapp>true</asWebapp>
-                                </webapp>
-                            </webapps>
-                            <addContextWarDependencies>true</addContextWarDependencies>
-                            <addWarDependenciesInClassloader>false</addWarDependenciesInClassloader>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -320,35 +152,6 @@
                                     <outputDirectory>${project.build.directory}/ec-registry-service-config</outputDirectory>
                                 </configuration>
                             </execution>                  
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy-sql-from-eurekaclinical-registry-service-2</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/ec-registry-service-config/WEB-INF/classes/dbmigration</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/main/resources/tomcat-eureka-config/dbmigration</directory>
-                                            <includes>
-                                                <include>registry-changelog-ec-cas-server-config.xml</include>
-                                                <include>registry-changelog-ec-i2b2-integration-config.xml</include>
-                                                <include>registry-changelog-ec-user-agreement-config.xml</include>
-                                                <include>registry-changelog-ec-user-config.xml</include>
-                                                <include>registry-changelog-eureka-config.xml</include>
-                                            </includes>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
@@ -434,12 +237,34 @@
                             </execution>                                                                                                                           
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <configuration>
+                            <deployables>
+                                <deployable>
+                                    <location>${project.build.directory}/${project.build.finalName}.${project.packaging}</location>
+                                </deployable>
+                                <deployable>
+                                    <groupId>org.eurekaclinical</groupId>
+                                    <artifactId>cas-mock</artifactId>
+                                    <type>war</type>
+                                </deployable>
+                                <deployable>
+                                    <groupId>org.eurekaclinical</groupId>
+                                    <artifactId>eurekaclinical-user-service</artifactId>
+                                    <type>war</type>
+                                </deployable>
+                                <deployable>
+                                    <groupId>org.eurekaclinical</groupId>
+                                    <artifactId>eurekaclinical-registry-service</artifactId>
+                                    <type>war</type>
+                                </deployable>
+                            </deployables>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
-            <!-- We need these dependencies to ensure that webapps are downloaded from their maven repos before
-            the tomcat plugin overwrites the javax.net.ssl.trustStore system property. Otherwise
-            attempts to download artifacts from repositories will fail with certificate validation
-            errors. -->
             <dependencies>
                 <dependency>
                     <groupId>org.eurekaclinical</groupId>
@@ -487,28 +312,6 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>                                                    
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>${jstl-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jsp-api</artifactId>
-            <version>2.0</version>                
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>        
-        <dependency>
-            <groupId>org.eurekaclinical</groupId>
-            <artifactId>scribe-up-ext</artifactId>
-            <version>${scribe-up-ext-version}</version>
-        </dependency>
         <dependency>
             <groupId>org.eurekaclinical</groupId>
             <artifactId>eurekaclinical-registry-client</artifactId>
